@@ -1,1 +1,9 @@
 .DS_Store
+/Rcam3Visualizer/obj
+*.csproj
+*.sln
+*.user
+/Rcam3Visualizer/Assets/Scripts/.idea
+/Rcam3Visualizer/.idea/.idea.Rcam3Visualizer/.idea
+/Rcam3Visualizer/Packages
+/Rcam3Visualizer/Packages
