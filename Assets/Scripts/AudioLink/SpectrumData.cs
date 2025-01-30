@@ -14,10 +14,10 @@ namespace root.AudioLink
 
         [SerializeField] private float range = 60; 
         MultibandFilter _filter;
-        private float _bypass;
-        private float _lowPass;
-        private float _bandPass;
-        private float _highPass;
+        public float _bypass;
+        public float _lowPass;
+        public float _bandPass;
+        public float _highPass;
         
         public float ByPass => _bypass;
         public float LowPass => _lowPass; 

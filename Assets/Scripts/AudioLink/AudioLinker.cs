@@ -8,7 +8,20 @@ namespace root.AudioLink
 {
     public sealed class AudioLinker : MonoBehaviour
     {
-        public int Channel = 1;
+        private int _channel = 1;
+
+        public int Channel
+        {
+            get => _channel;
+            set
+            {
+                if (value == _channel) return;
+                
+                _channel = value; 
+                SelectInputChannel(_channel);
+            }
+        }
+        
         public int SampleRate => _stream?.SampleRate ?? 0;
         public float Volume { get; set; } = 1;
         public ReadOnlySpan<float> AudioDataSpan =>
@@ -44,6 +57,28 @@ namespace root.AudioLink
         {
             _stream?.Dispose();
             _audioData.Dispose();
+        }
+
+        
+        void SelectInputChannel(int index)
+        {
+            if (_stream != null)
+            {
+                _stream.Dispose();
+                _stream = null; 
+            }
+
+            try
+            {
+                _stream = DeviceDriver.OpenInputStream(index);
+            }
+            catch (System.InvalidOperationException e)
+            {
+                Debug.LogError(e);
+                return; 
+            }
+            
+            
         }
     }
 }
