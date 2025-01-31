@@ -4,25 +4,25 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-namespace root.AudioLink
+namespace root.AudioLink.Core
 {
     public class SpectrumData : MonoBehaviour
     {
         [CanBeNull] [SerializeField] private AudioLinker linker;
-
-        [SerializeField] private float range = 60; 
+        [SerializeField] [CanBeNull] private AudioSettings audioSettings; 
         MultibandFilter _filter;
-        public float _bypass;
-        public float _lowPass;
-        public float _bandPass;
-        public float _highPass;
-        
-        public float ByPass => _bypass;
-        public float LowPass => _lowPass; 
-        public float BandPass => _bandPass;
-        public float HighPass => _highPass;
+        private float _bypass;
+        private float _lowPass;
+        private float _bandPass;
+        private float _highPass;
+        [CanBeNull] private DftBuffer _dftBuffer;
+
+        public DftBuffer DftBuffer => _dftBuffer; 
+        private float ByPass => _bypass;
+        private float LowPass => _lowPass; 
+        private float BandPass => _bandPass;
+        private float HighPass => _highPass;
 
         [Unity.Burst.BurstCompile(CompileSynchronously = true)]
         struct FilterRmsJob : IJob
@@ -31,7 +31,6 @@ namespace root.AudioLink
             [WriteOnly] public NativeArray<float4> Output;
             public NativeArray<MultibandFilter> Filter;
             
-
             public void Execute()
             {
                 var filter = Filter[0];
@@ -54,8 +53,22 @@ namespace root.AudioLink
                 Filter[0] = filter;
             }
         }
-        
-        void Update()
+
+        private void Start()
+        {
+            if (_dftBuffer != null || audioSettings == null)
+                return;
+
+            _dftBuffer = new DftBuffer(audioSettings.SpectrumResolution);
+        }
+
+        private void OnDestroy()
+        {
+            if (_dftBuffer != null) 
+                _dftBuffer.Dispose();
+        }
+
+        private void Update()
         {
             var tempFilter = new NativeArray<MultibandFilter>
                 (1, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -64,7 +77,13 @@ namespace root.AudioLink
                 (1, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             if (linker is null)
+                return;
+
+            if (_dftBuffer is null)
                 return; 
+            
+            _dftBuffer.Push(linker.AudioDataSpan);
+            _dftBuffer.Analyze();
             
             _filter.SetParameter(960.0f / linker.SampleRate, 0.15f);
             tempFilter[0] = _filter;
@@ -77,13 +96,15 @@ namespace root.AudioLink
             
             _filter = tempFilter[0];
 
-            // Meter scale
-            var sc = math.max(0, range + tempLevel[0]) / range;
+            if (audioSettings == null)
+                return; 
+            
+            var sc = math.max(0, audioSettings.SpectrumRange + tempLevel[0]) / audioSettings.SpectrumRange;
 
             _bypass = sc.x;
             _lowPass = sc.y;
             _bandPass = sc.z;
-            _highPass = sc.w; 
+            _highPass = sc.w;
 
             tempFilter.Dispose();
             tempLevel.Dispose();
