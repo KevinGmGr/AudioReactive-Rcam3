@@ -69,6 +69,7 @@ namespace root.AudioLink.Core
             try
             {
                 _stream = DeviceDriver.OpenInputStream(index);
+                Debug.Log("Current Audio Device: " + DeviceDriver.GetDeviceName(index));
             }
             catch (System.InvalidOperationException e)
             {
