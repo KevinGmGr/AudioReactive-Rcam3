@@ -3,11 +3,19 @@
 RWTexture2D<float4> Result;
 StructuredBuffer<float> Spectrum;
 
-[numthreads(32,1,1)]
+[numthreads(32,32,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    if (id.x >= 1024) return;
+    const float refLevel = 0.7071f;
+    const float zeroOffset = 1.5849e-13f;
+    
+    float valueX = saturate(Spectrum.Load(id.x) * 1000);
 
-    float value = saturate(Spectrum.Load(id.x)*1000.0f);
-    Result[int2(id.x, 0)] = float4(value, value, value,1.0f);
+    float2 uv = float2(id.x /1023.0f, id.y /1023.0f);
+    float x = log10(id.x) / log10(1023.0f / 2.0f - 1.0f);
+    float y = 20 * log10(Spectrum.Load(id.x) * 1000 / refLevel + zeroOffset);
+
+    float far = distance(uv, float2(x,y));
+    
+    Result[int2(id.x , id.y)] = float4(y, y, 0, 1.0f);
 }

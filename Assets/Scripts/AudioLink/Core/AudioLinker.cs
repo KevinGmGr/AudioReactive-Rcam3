@@ -24,9 +24,12 @@ namespace root.AudioLink.Core
 
         private void Start()
         {
-            _audioData = new NativeArray<float>(4096, Allocator.Persistent);
+            if (audioSettings == null) 
+                return;
             
-            if (audioSettings != null) 
+            _audioData = new NativeArray<float>(audioSettings.SpectrumResolution, Allocator.Persistent);
+
+            if (audioSettings != null)
                 SetInputChannel(audioSettings.Channel);
         }
 
