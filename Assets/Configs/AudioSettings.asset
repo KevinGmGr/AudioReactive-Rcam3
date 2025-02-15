@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 120655e8dcab847779a054f4eab79780, type: 3}
   m_Name: AudioSettings
   m_EditorClassIdentifier: 
-  Channel: 0
+  Channel: 1
   SpectrumRange: 60
   SpectrumResolution: 1024

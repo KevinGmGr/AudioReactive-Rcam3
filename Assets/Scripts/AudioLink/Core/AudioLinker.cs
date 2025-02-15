@@ -51,7 +51,9 @@ namespace root.AudioLink.Core
 
             _audioDataFilled = Mathf.Min(input.Length, input.Length / stride);
 
-            for (var i = 0; i < _audioDataFilled; i++)
+            var maxFilled = _audioDataFilled < _audioData.Length ? _audioDataFilled : _audioData.Length;
+
+            for (var i = 0; i * stride + offset < maxFilled; i++)
                 _audioData[i] = input[i * stride + offset] * Volume;
         }
 
