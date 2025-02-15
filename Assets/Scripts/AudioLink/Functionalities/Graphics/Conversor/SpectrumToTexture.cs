@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 
 namespace root.AudioLink.Graphics.DataToTextures
 {
-    public class SpectrumToTexture : DataToTexture
+    public class SpectrumToTexture : ComputeShaderFromAudio
     {
         [SerializeField] private Material material;
         private RenderTexture _texture;

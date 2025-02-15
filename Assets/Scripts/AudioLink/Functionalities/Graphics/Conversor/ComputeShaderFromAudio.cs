@@ -4,20 +4,18 @@ using UnityEngine;
 
 namespace root.AudioLink.Graphics.DataToTextures
 {
-    public abstract class DataToTexture : MonoBehaviour
+    public abstract class ComputeShaderFromAudio : AudioElement
     {
         [SerializeField] protected ComputeShader shader;
-        [SerializeField] protected SpectrumData spectrum;
-        [SerializeField] protected AudioSettings settings;
         [SerializeField] protected int resolution;
         
         protected ComputeBuffer Buffer;
 
         protected void Start()
         {
-            if (shader == null || spectrum == null || settings == null)
+            if (shader == null)
             {
-                Debug.LogError("Null references on SpectrumToTexture");
+                Debug.LogError("Compute Shader missing on: " + name);
                 return; 
             }
             
